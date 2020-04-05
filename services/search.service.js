@@ -7,6 +7,7 @@ class SearchService {
     this._tokenService = tokenService || splitTokenization;
     this._rankService = rankService || sharedTokensRanker;
     this._tokenizedDocuments = this._runTokenization(documentsService.getAll());
+    this._listenToEvents();
   }
 
   set tokenService(service) {
@@ -17,11 +18,20 @@ class SearchService {
     this._rankService = service;
   }
 
+  _listenToEvents() {
+    documentsService.documentsEventEmitter.on('document.added', (document) => {
+      this._tokenizedDocuments[document] = this._tokenizeDocument(document);
+    });
+  }
   _runTokenization(documents) {
     return documents.reduce((tokenizedDocuments, document) => {
-      tokenizedDocuments[document] = this._tokenService.tokenize(document);
+      tokenizedDocuments[document] = this._tokenizeDocument(document);
       return tokenizedDocuments;
     }, {});
+  }
+
+  _tokenizeDocument(document) {
+    return this._tokenService.tokenize(document);
   }
 
   _sortByRank(resultA, resultB) {
@@ -30,6 +40,9 @@ class SearchService {
     return rankB - rankA;
   }
 
+  /* We expect any rankService to have a rank property that returns a function.
+     With the returned function, given a list of tokens, it will return a score
+  */
   search(query) {
     const rank = this._rankService.rank(query);
 

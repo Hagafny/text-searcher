@@ -1,10 +1,10 @@
 const routes = require('express').Router();
-const documentsService = require('../services/documents.service');
-const SearchService = require('../services/search.service');
+const controller = require('../controllers');
+
 routes.post('/index', (req, res) => {
   try {
     const indexes = Object.keys(req.body);
-    documentsService.add(indexes);
+    controller.index(indexes);
     res.status(200).end('Index added successfully');
   } catch (e) {
     res.status(500).end(e.message);
@@ -12,13 +12,13 @@ routes.post('/index', (req, res) => {
 });
 
 routes.post('/search', (req, res) => {
-  const query = Object.keys(req.body)[0];
-  const searchService = new SearchService();
-  const results = searchService.search(query);
-
-  console.log(results)
-  res.status(200).end('Index added successfully');
-
+  try {
+    const query = Object.keys(req.body)[0];
+    const results = controller.search(query);
+    res.status(200).json(results);
+  } catch (e) {
+    res.status(500).end(e.message);
+  }
 });
 
 module.exports = routes;

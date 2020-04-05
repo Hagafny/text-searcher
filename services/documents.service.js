@@ -1,28 +1,36 @@
 const fs = require('fs');
+const EventEmitter = require('events');
+
 const dbFile = require('../db.json');
 const documents_key = 'documents';
-
-let documentsDB = dbFile[documents_key];
+const documentsEventEmitter = new EventEmitter();
+let documentsDB = new Set(dbFile[documents_key]);
 
 const getAll = () => {
-  return documentsDB;
+  return [...documentsDB];
 };
 
 const add = (documents) => {
   if (Array.isArray(documents)) {
-    documentsDB = [...documentsDB, ...documents];
+    documents.forEach(_addDocument);
   } else if (typeof document === 'string') {
-    documentsDB = [...documentsDB, documents];
+    _addDocument(documents);
   } else {
     throw TypeError('Argument should be either an array or a string');
   }
 
-  save();
+  _save();
 };
 
-const save = () => {
+/*  We emit an event to support adding more documents after the program is being run */
+const _addDocument = (document) => {
+  documentsDB.add(document);
+  documentsEventEmitter.emit('document.added', document);
+};
+
+const _save = () => {
   const db = {
-    [documents_key]: documentsDB,
+    [documents_key]: [...documentsDB],
   };
 
   const jsonContent = JSON.stringify(db);
@@ -39,4 +47,5 @@ const save = () => {
 module.exports = {
   getAll,
   add,
+  documentsEventEmitter,
 };
