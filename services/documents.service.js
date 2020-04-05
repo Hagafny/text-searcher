@@ -30,7 +30,7 @@ const _addDocument = (document) => {
 
 const _save = () => {
   const db = {
-    [documents_key]: [...documentsDB],
+    [documents_key]: this.getAll(),
   };
 
   const jsonContent = JSON.stringify(db);
