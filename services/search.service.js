@@ -59,4 +59,4 @@ class SearchService {
   }
 }
 
-module.exports = SearchService;
+module.exports = new SearchService();

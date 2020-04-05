@@ -1,7 +1,5 @@
 const documentsService = require('../services/documents.service');
-const SearchService = require('../services/search.service');
-
-const searchService = new SearchService();
+const searchService = require('../services/search.service');
 
 const index = (indexes) => {
   documentsService.add(indexes);
